@@ -1095,30 +1095,7 @@ const audience = [
   { title: 'Multi-Location Operations', desc: 'Centralized coordination across multiple agency locations', icon: <><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" /></> },
 ]
 
-function useMediaQuery() {
-  const [screenSize, setScreenSize] = useState({
-    isMobile: false,
-    isTablet: false,
-    isDesktop: true
-  })
 
-  useEffect(() => {
-    const updateScreenSize = () => {
-      const width = window.innerWidth
-      setScreenSize({
-        isMobile: width <= 640,
-        isTablet: width > 640 && width <= 1024,
-        isDesktop: width > 1024
-      })
-    }
-
-    updateScreenSize()
-    window.addEventListener('resize', updateScreenSize)
-    return () => window.removeEventListener('resize', updateScreenSize)
-  }, [])
-
-  return screenSize
-}
 
 // Custom hook for responsive breakpoints
 function useMediaQuery() {
