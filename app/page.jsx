@@ -957,42 +957,131 @@ const benefits = [
   { title: 'Dedicated Remote Professionals', desc: 'Not a call center — your own named coordinators who know your agency, your clinicians, and your patients.', icon: <><rect x="1" y="3" width="15" height="13" rx="2" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></> },
 ]
 
+// BenefitCard component (extracted to satisfy Rules of Hooks)
+function BenefitCard({ benefit, index, isMobile }) {
+  const [hov, setHov] = useState(false)
+
+  return (
+    <AnimatedText delay={0.1 * index} direction={index % 2 === 0 ? 'left' : 'right'}>
+      <div
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 16,
+          background: C.white,
+          border: `1px solid ${hov ? 'rgba(68,81,244,.3)' : C.border}`,
+          borderRadius: 12,
+          padding: isMobile ? 20 : 24,
+          boxShadow: hov ? '0 12px 36px rgba(68,81,244,.1)' : '0 4px 16px rgba(68,81,244,.05)',
+          transform: hov ? 'translateY(-3px)' : 'none',
+          transition: 'all .25s',
+        }}
+      >
+        <div
+          style={{
+            width: isMobile ? 38 : 42,
+            height: isMobile ? 38 : 42,
+            borderRadius: 12,
+            background: `linear-gradient(135deg,${C.blue},${C.violet})`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            boxShadow: '0 4px 12px rgba(68,81,244,.3)',
+          }}
+        >
+          <svg
+            width={isMobile ? 16 : 18}
+            height={isMobile ? 16 : 18}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            {benefit.icon}
+          </svg>
+        </div>
+        <div>
+          <h4
+            style={{
+              fontSize: isMobile ? '.88rem' : '.92rem',
+              fontWeight: 700,
+              color: C.ink,
+              marginBottom: 5,
+              fontFamily: "'Sora',sans-serif",
+            }}
+          >
+            {benefit.title}
+          </h4>
+          <p
+            style={{
+              fontSize: isMobile ? '.78rem' : '.82rem',
+              color: C.muted,
+              lineHeight: 1.6,
+            }}
+          >
+            {benefit.desc}
+          </p>
+        </div>
+      </div>
+    </AnimatedText>
+  )
+}
+
+// Corrected Benefits component
 function Benefits() {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   return (
     <Section id="benefits" bg={C.surf}>
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 30 : 60, alignItems: 'center', marginBottom: 56 }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+          gap: isMobile ? 30 : 60,
+          alignItems: 'center',
+          marginBottom: 56,
+        }}
+      >
         <div>
           <SectionTag>Why GrowEdgeX</SectionTag>
           <SectionTitle>Built for home health. Proven in the field.</SectionTitle>
         </div>
         <AnimatedText delay={0.2} direction="right">
-          <p style={{ fontSize: isMobile ? '.92rem' : '1rem', color: C.muted, lineHeight: 1.75 }}>Our coordinators are trained specifically on home health operations — not generic admin work. That specialization makes all the difference.</p>
+          <p
+            style={{
+              fontSize: isMobile ? '.92rem' : '1rem',
+              color: C.muted,
+              lineHeight: 1.75,
+            }}
+          >
+            Our coordinators are trained specifically on home health operations —
+            not generic admin work. That specialization makes all the difference.
+          </p>
         </AnimatedText>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: 20 }}>
-        {benefits.map((b, i) => {
-          const [hov, setHov] = useState(false)
-          return (
-            <AnimatedText key={i} delay={0.1 * i} direction={i % 2 === 0 ? 'left' : 'right'}>
-              <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{
-                display: 'flex', alignItems: 'flex-start', gap: 16,
-                background: C.white, border: `1px solid ${hov ? 'rgba(68,81,244,.3)' : C.border}`,
-                borderRadius: 12, padding: isMobile ? 20 : 24,
-                boxShadow: hov ? '0 12px 36px rgba(68,81,244,.1)' : '0 4px 16px rgba(68,81,244,.05)',
-                transform: hov ? 'translateY(-3px)' : 'none', transition: 'all .25s',
-              }}>
-                <div style={{ width: isMobile ? 38 : 42, height: isMobile ? 38 : 42, borderRadius: 12, background: `linear-gradient(135deg,${C.blue},${C.violet})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(68,81,244,.3)' }}>
-                  <svg width={isMobile ? 16 : 18} height={isMobile ? 16 : 18} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">{b.icon}</svg>
-                </div>
-                <div>
-                  <h4 style={{ fontSize: isMobile ? '.88rem' : '.92rem', fontWeight: 700, color: C.ink, marginBottom: 5, fontFamily: "'Sora',sans-serif" }}>{b.title}</h4>
-                  <p style={{ fontSize: isMobile ? '.78rem' : '.82rem', color: C.muted, lineHeight: 1.6 }}>{b.desc}</p>
-                </div>
-              </div>
-            </AnimatedText>
-          )
-        })}
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+          gap: 20,
+        }}
+      >
+        {benefits.map((b, i) => (
+          <BenefitCard key={i} benefit={b} index={i} isMobile={isMobile} />
+        ))}
       </div>
     </Section>
   )
