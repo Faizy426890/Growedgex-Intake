@@ -126,11 +126,22 @@ function GlobalStyles() {
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', fn)
-    return () => window.removeEventListener('scroll', fn)
+    // Detect mobile after mount and on resize
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   const links = [
@@ -145,7 +156,7 @@ function Navbar() {
     <nav style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 999,
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: window.innerWidth <= 768 ? '14px 20px' : '16px 48px',
+      padding: isMobile ? '14px 20px' : '16px 48px',
       background: scrolled ? 'rgba(245,247,255,0.94)' : 'transparent',
       backdropFilter: scrolled ? 'blur(20px)' : 'none',
       borderBottom: scrolled ? `1px solid ${C.border}` : '1px solid transparent',
@@ -171,12 +182,12 @@ function Navbar() {
       </div>
 
       {/* Desktop Links */}
-      <ul style={{ display: window.innerWidth <= 768 ? 'none' : 'flex', gap: 28, listStyle: 'none' }}>
+      <ul style={{ display: isMobile ? 'none' : 'flex', gap: 28, listStyle: 'none' }}>
         {links.map(l => <li key={l.id}><NavLink label={l.label} onClick={() => scrollTo(l.id)} /></li>)}
       </ul>
 
       {/* Desktop Right */}
-      <div style={{ display: window.innerWidth <= 768 ? 'none' : 'flex', alignItems: 'center', gap: 14 }}>
+      <div style={{ display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: 14 }}>
         <a href="tel:+14699292524" style={{ fontSize: '.83rem', fontWeight: 500, color: C.muted, display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
           <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke={C.muted2} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
             <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013 10.79a19.79 19.79 0 01-3.07-8.67A2 2 0 011.9 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z" />
@@ -190,7 +201,7 @@ function Navbar() {
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
         style={{
-          display: window.innerWidth <= 768 ? 'flex' : 'none',
+          display: isMobile ? 'flex' : 'none',
           flexDirection: 'column',
           gap: 4,
           background: 'none',
@@ -252,8 +263,21 @@ function NavLink({ label, onClick }) {
 /* ── HERO ── */
 function Hero() {
   const IMAGE_URL = 'https://cdn.prod.website-files.com/646676446cb9dc8974098e5d/68dfe523cf88621047bfa804_thumbnail.jpeg'
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+const [isMobile, setIsMobile] = useState(false)
+useEffect(() => {
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth <= 768)
+  }
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+  return () => window.removeEventListener('resize', checkMobile)
+}, [])
 
+useEffect(() => {
+  const handleScroll = () => setScrolled(window.scrollY > 20)
+  window.addEventListener('scroll', handleScroll)
+  return () => window.removeEventListener('scroll', handleScroll)
+}, [])
   const stats = [
     { value: '98%', label: 'Visit Completion' },
     { value: '3x',  label: 'Faster Intake'    },
