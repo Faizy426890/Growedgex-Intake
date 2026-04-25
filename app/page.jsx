@@ -1,0 +1,1132 @@
+'use client'
+import { useState, useEffect } from 'react'
+
+/* ── DESIGN TOKENS (hardcoded – no CSS vars) ── */
+const C = {
+  blue:    '#4451f4',
+  blue2:   '#6b78ff',
+  blue3:   '#eef0fe',
+  violet:  '#7c5cfc',
+  ink:     '#0f1117',
+  ink2:    '#1a1d2e',
+  surf:    '#f5f7ff',
+  white:   '#ffffff',
+  border:  '#e4e6f0',
+  muted:   '#6b7280',
+  muted2:  '#9ca3af',
+}
+
+const css = {
+  btn: (hov, ghost) => ({
+    padding: ghost ? '11px 22px' : '11px 24px',
+    borderRadius: 100,
+    fontFamily: "'Sora',sans-serif",
+    fontSize: '.85rem',
+    fontWeight: 700,
+    cursor: 'pointer',
+    border: ghost ? `1.5px solid ${C.border}` : 'none',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 7,
+    transition: 'all .22s',
+    background: ghost
+      ? (hov ? C.blue3 : 'transparent')
+      : (hov ? '#5563ff' : C.blue),
+    color: ghost ? (hov ? C.blue : C.muted) : '#fff',
+    boxShadow: ghost ? 'none' : (hov ? '0 8px 28px rgba(68,81,244,.45)' : '0 4px 18px rgba(68,81,244,.3)'),
+    transform: hov ? 'translateY(-2px)' : 'none',
+  }),
+}
+
+function scrollTo(id) {
+  const el = document.getElementById(id)
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+function Btn({ children, onClick, style = {}, ghost = false }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <button style={{ ...css.btn(hov, ghost), ...style }} onClick={onClick}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
+      {children}
+    </button>
+  )
+}
+
+/* ── GLOBAL STYLES (injected once) ── */
+function GlobalStyles() {
+  useEffect(() => {
+    const id = 'gex-styles'
+    if (document.getElementById(id)) return
+    const el = document.createElement('style')
+    el.id = id
+    el.textContent = `
+      @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Outfit:wght@400;500;600&display=swap');
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: 'Outfit', sans-serif; background: ${C.surf}; color: ${C.ink}; }
+      input, select { outline: none; }
+      @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:none; } }
+      @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-12px); } }
+      @keyframes blob { 0%,100% { border-radius:60% 40% 70% 30%/50% 60% 40% 70%; } 50% { border-radius:40% 60% 30% 70%/60% 40% 70% 30%; } }
+      @keyframes shimmer { 0% { background-position:0% center; } 100% { background-position:200% center; } }
+      @keyframes marquee { from { transform:translateX(0); } to { transform:translateX(-50%); } }
+      @keyframes pulseDot { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.5; transform:scale(.7); } }
+    `
+    document.head.appendChild(el)
+  }, [])
+  return null
+}
+
+/* ── NAVBAR ── */
+function Navbar() {
+  const [scrolled, setScrolled] = useState(false)
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', fn)
+    return () => window.removeEventListener('scroll', fn)
+  }, [])
+
+  const links = [
+    { label: 'Services', id: 'services' },
+    { label: 'How It Works', id: 'how' },
+    { label: 'Benefits', id: 'benefits' },
+    { label: 'Who We Help', id: 'who' },
+    { label: 'Contact', id: 'cta' },
+  ]
+
+  return (
+    <nav style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 999,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '16px 48px',
+      background: scrolled ? 'rgba(245,247,255,0.94)' : 'transparent',
+      backdropFilter: scrolled ? 'blur(20px)' : 'none',
+      borderBottom: scrolled ? `1px solid ${C.border}` : '1px solid transparent',
+      boxShadow: scrolled ? '0 4px 24px rgba(68,81,244,.07)' : 'none',
+      transition: 'all .3s ease',
+    }}>
+      {/* Logo */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <div style={{
+          width: 38, height: 38, borderRadius: 11,
+          background: `linear-gradient(135deg,${C.blue},${C.violet})`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 4px 14px rgba(68,81,244,.4)',
+        }}>
+          <svg width={19} height={19} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+          </svg>
+        </div>
+        <span style={{ fontFamily: "'Sora',sans-serif", fontWeight: 800, fontSize: '1.18rem', color: C.ink, letterSpacing: '-0.5px' }}>
+          Grow<span style={{ color: C.blue }}>EdgeX</span>
+        </span>
+      </div>
+
+      {/* Links */}
+      <ul style={{ display: 'flex', gap: 28, listStyle: 'none' }}>
+        {links.map(l => <li key={l.id}><NavLink label={l.label} onClick={() => scrollTo(l.id)} /></li>)}
+      </ul>
+
+      {/* Right */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <a href="tel:+14699292524" style={{ fontSize: '.83rem', fontWeight: 500, color: C.muted, display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
+          <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke={C.muted2} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013 10.79a19.79 19.79 0 01-3.07-8.67A2 2 0 011.9 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z" />
+          </svg>
+          +1 469 929 2524
+        </a>
+        <Btn onClick={() => scrollTo('cta')}>Free Consultation →</Btn>
+      </div>
+    </nav>
+  )
+}
+
+function NavLink({ label, onClick }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <span onClick={onClick} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      style={{ fontSize: '.875rem', fontWeight: 500, color: hov ? C.blue : C.muted, cursor: 'pointer', transition: 'color .2s' }}>
+      {label}
+    </span>
+  )
+}
+
+/* ── HERO ── */
+// ─── DROP-IN REPLACEMENT: Hero + Marquee ───────────────────────────────────
+// Replace your existing Hero() and Marquee() functions with these.
+// Everything else in the file stays unchanged.
+
+/* ── HERO ── */
+function Hero() {
+  const IMAGE_URL =
+    'https://cdn.prod.website-files.com/646676446cb9dc8974098e5d/68dfe523cf88621047bfa804_thumbnail.jpeg'
+
+  const stats = [
+    { value: '98%', label: 'Visit Completion' },
+    { value: '3x',  label: 'Faster Intake'    },
+    { value: '40%', label: 'Less Admin Work'  },
+    { value: '50+', label: 'Agencies Served'  },
+  ]
+
+  const trust = [
+    'HIPAA Compliant',
+    'EMR Compatible',
+    'No Long-Term Contracts',
+    'Dedicated Coordinators',
+  ]
+
+  return (
+    <section
+      id="home"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '120px 48px 80px',
+        position: 'relative',
+        overflow: 'hidden',
+        background: C.surf,
+      }}
+    >
+      {/* ── grid bg ── */}
+      <div
+        style={{
+          position: 'absolute', inset: 0, zIndex: 0,
+          backgroundImage: `
+            linear-gradient(rgba(68,81,244,0.045) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(68,81,244,0.045) 1px, transparent 1px)
+          `,
+          backgroundSize: '56px 56px',
+        }}
+      />
+
+      {/* ── soft blobs (will-change keeps GPU-composited) ── */}
+      <div
+        style={{
+          position: 'absolute', width: 700, height: 700,
+          right: -160, top: -160, zIndex: 0, pointerEvents: 'none',
+          background: 'rgba(68,81,244,0.07)', filter: 'blur(80px)',
+          borderRadius: '60% 40% 70% 30% / 50% 60% 40% 70%',
+          animation: 'blob 12s ease-in-out infinite',
+          willChange: 'border-radius',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute', width: 500, height: 500,
+          left: -100, bottom: -80, zIndex: 0, pointerEvents: 'none',
+          background: 'rgba(124,92,252,0.06)', filter: 'blur(80px)',
+          borderRadius: '40% 60% 30% 70% / 60% 40% 70% 30%',
+          animation: 'blob 12s ease-in-out infinite reverse',
+          willChange: 'border-radius',
+        }}
+      />
+
+      {/* ── main grid ── */}
+      <div
+        style={{
+          position: 'relative', zIndex: 1,
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 64,
+          alignItems: 'center',
+          maxWidth: 1200, margin: '0 auto', width: '100%',
+        }}
+      >
+        {/* ─────────── LEFT ─────────── */}
+        <div style={{ animation: 'fadeUp .65s ease both' }}>
+
+          {/* badge */}
+          <div
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: C.blue3, border: `1px solid rgba(68,81,244,.22)`,
+              padding: '7px 16px', borderRadius: 100,
+              fontFamily: "'Sora',sans-serif", fontSize: '.75rem',
+              fontWeight: 700, color: C.blue, letterSpacing: '.5px',
+              textTransform: 'uppercase', marginBottom: 24,
+            }}
+          >
+            <div
+              style={{
+                width: 7, height: 7, borderRadius: '50%',
+                background: C.blue, animation: 'pulseDot 2s infinite',
+              }}
+            />
+            Home Health Scheduling Specialists
+          </div>
+
+          {/* headline */}
+          <h1
+            style={{
+              fontSize: 'clamp(2.2rem,4vw,3.5rem)', fontWeight: 800,
+              letterSpacing: '-1.5px', lineHeight: 1.07,
+              color: C.ink, marginBottom: 22,
+              fontFamily: "'Sora',sans-serif",
+            }}
+          >
+            Scheduling That{' '}
+            <em
+              style={{
+                fontStyle: 'normal',
+                background: `linear-gradient(120deg,${C.blue} 20%,${C.violet} 80%)`,
+                backgroundSize: '200% auto',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                animation: 'shimmer 4s linear infinite',
+              }}
+            >
+              Actually Works
+            </em>{' '}
+            for Your Agency
+          </h1>
+
+          {/* sub-copy */}
+          <p
+            style={{
+              fontSize: '1.02rem', color: C.muted,
+              lineHeight: 1.78, maxWidth: 480,
+              marginBottom: 14, fontWeight: 400,
+            }}
+          >
+            GrowEdgeX provides dedicated remote scheduling &amp; intake
+            coordination built exclusively for home health agencies — reducing
+            chaos, missed visits, and admin overload.
+          </p>
+          <p
+            style={{
+              fontSize: '.92rem', color: C.muted2,
+              lineHeight: 1.72, maxWidth: 460, marginBottom: 36,
+            }}
+          >
+            Our coordinators integrate directly into your EMR, your team
+            channels, and your daily workflows — so you see results from day one
+            without adding headcount.
+          </p>
+
+          {/* CTAs */}
+          <div
+            style={{
+              display: 'flex', alignItems: 'center',
+              gap: 14, flexWrap: 'wrap', marginBottom: 40,
+            }}
+          >
+            <Btn
+              onClick={() => scrollTo('cta')}
+              style={{ padding: '13px 28px', fontSize: '.93rem' }}
+            >
+              Book Free Consultation →
+            </Btn>
+            <Btn
+              ghost
+              onClick={() => scrollTo('services')}
+              style={{ padding: '13px 24px', fontSize: '.93rem' }}
+            >
+              See Our Services
+            </Btn>
+          </div>
+
+          {/* trust pills */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 36 }}>
+            {trust.map(t => (
+              <div
+                key={t}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '6px 14px', borderRadius: 100,
+                  background: C.white, border: `1px solid ${C.border}`,
+                  fontSize: '.75rem', fontWeight: 600,
+                  color: C.muted, fontFamily: "'Sora',sans-serif",
+                  boxShadow: '0 2px 8px rgba(68,81,244,.05)',
+                }}
+              >
+                <svg width={10} height={10} viewBox="0 0 24 24" fill="none" stroke={C.blue} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                {t}
+              </div>
+            ))}
+          </div>
+
+          {/* social proof */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ display: 'flex' }}>
+              {['JM', 'SR', 'AK', '+'].map((t, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 34, height: 34, borderRadius: '50%',
+                    background: `linear-gradient(135deg,${C.blue},${C.violet})`,
+                    border: `2.5px solid ${C.surf}`,
+                    marginLeft: i === 0 ? 0 : -10,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: "'Sora',sans-serif", fontSize: 11,
+                    fontWeight: 700, color: '#fff',
+                  }}
+                >
+                  {t}
+                </div>
+              ))}
+            </div>
+            <div>
+              <div style={{ color: '#f5a623', fontSize: 13, letterSpacing: 1 }}>★★★★★</div>
+              <div style={{ fontSize: '.82rem', color: C.muted, fontWeight: 500 }}>
+                <strong style={{ color: C.ink }}>50+ agencies</strong> trust GrowEdgeX
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ─────────── RIGHT ─────────── */}
+        <div style={{ position: 'relative', animation: 'float 6s ease-in-out infinite' }}>
+
+          {/* main image card */}
+          <div
+            style={{
+              borderRadius: 24, overflow: 'hidden',
+              boxShadow: '0 32px 80px rgba(68,81,244,.18), 0 8px 24px rgba(0,0,0,.08)',
+              border: `1px solid ${C.border}`,
+              position: 'relative',
+            }}
+          >
+            <img
+              src={IMAGE_URL}
+              alt="Home health coordination team at work"
+              style={{
+                width: '100%', height: 360,
+                objectFit: 'cover', display: 'block',
+              }}
+            />
+
+            {/* gradient overlay for readability of overlaid chips */}
+            <div
+              style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to top, rgba(15,17,23,.55) 0%, transparent 55%)',
+              }}
+            />
+
+            {/* bottom-left floating chip */}
+            <div
+              style={{
+                position: 'absolute', bottom: 18, left: 18,
+                background: 'rgba(255,255,255,.96)',
+                backdropFilter: 'blur(12px)',
+                borderRadius: 14, padding: '12px 16px',
+                display: 'flex', alignItems: 'center', gap: 10,
+                boxShadow: '0 8px 24px rgba(0,0,0,.12)',
+              }}
+            >
+              <div
+                style={{
+                  width: 36, height: 36, borderRadius: 10,
+                  background: `linear-gradient(135deg,${C.blue},${C.violet})`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}
+              >
+                <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+              </div>
+              <div>
+                <div style={{ fontSize: '.78rem', fontWeight: 700, color: C.ink, fontFamily: "'Sora',sans-serif" }}>Today's Schedule</div>
+                <div style={{ fontSize: '.72rem', color: C.muted }}>24 visits · 0 conflicts</div>
+              </div>
+            </div>
+
+            {/* top-right live dot */}
+            <div
+              style={{
+                position: 'absolute', top: 16, right: 16,
+                background: 'rgba(255,255,255,.95)',
+                backdropFilter: 'blur(8px)',
+                borderRadius: 100, padding: '6px 12px',
+                display: 'flex', alignItems: 'center', gap: 6,
+                fontSize: '.72rem', fontWeight: 700,
+                color: C.ink, fontFamily: "'Sora',sans-serif",
+                boxShadow: '0 4px 12px rgba(0,0,0,.1)',
+              }}
+            >
+              <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#22c55e', animation: 'pulseDot 2s infinite' }} />
+              Live Operations
+            </div>
+          </div>
+
+          {/* stats row below image */}
+          <div
+            style={{
+              display: 'grid', gridTemplateColumns: 'repeat(4,1fr)',
+              gap: 12, marginTop: 16,
+            }}
+          >
+            {stats.map(({ value, label }) => (
+              <div
+                key={label}
+                style={{
+                  background: C.white,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: 14, padding: '16px 12px',
+                  textAlign: 'center',
+                  boxShadow: '0 4px 16px rgba(68,81,244,.06)',
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "'Sora',sans-serif",
+                    fontSize: '1.55rem', fontWeight: 800,
+                    color: C.blue, lineHeight: 1,
+                  }}
+                >
+                  {value}
+                </div>
+                <div style={{ fontSize: '.68rem', color: C.muted, marginTop: 4, fontWeight: 500 }}>
+                  {label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* floating side card */}
+          <div
+            style={{
+              position: 'absolute', top: 80, left: -64,
+              background: C.white, border: `1px solid ${C.border}`,
+              borderRadius: 16, padding: '16px 20px',
+              boxShadow: '0 16px 48px rgba(68,81,244,.14)',
+              width: 200,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <div
+                style={{
+                  width: 32, height: 32, borderRadius: 9,
+                  background: C.blue3,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke={C.blue} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+                </svg>
+              </div>
+              <span style={{ fontSize: '.8rem', fontWeight: 700, color: C.ink, fontFamily: "'Sora',sans-serif" }}>Clinicians Online</span>
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {['#4451f4','#7c5cfc','#22c55e','#f5a623'].map((col, i) => (
+                <div key={i} style={{ width: 24, height: 24, borderRadius: '50%', background: col, border: '2px solid #fff', marginLeft: i === 0 ? 0 : -6 }} />
+              ))}
+              <span style={{ fontSize: '.72rem', color: C.muted, marginLeft: 6, alignSelf: 'center' }}>+18 active</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ── MARQUEE (lag-free via CSS translate3d + will-change) ── */
+function Marquee() {
+  const items = [
+    'SOC Scheduling','Referral Intake','Clinician Coordination','EMR Support',
+    'Visit Confirmations','Documentation Tracking','Recertifications','Discharge Coordination',
+  ]
+  // Triple the list so the seam is never visible at any viewport width
+  const band = [...items, ...items, ...items]
+
+  return (
+    <div
+      style={{
+        background: C.ink2, padding: '17px 0',
+        overflow: 'hidden', position: 'relative',
+      }}
+    >
+      {/* fade edges */}
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none',
+        background: `linear-gradient(90deg,${C.ink2} 0%,transparent 8%,transparent 92%,${C.ink2} 100%)`,
+      }} />
+
+      <div
+        style={{
+          display: 'flex',
+          width: 'max-content',
+          // translate3d forces GPU layer — eliminates CPU jank
+          animation: 'marqueeScroll 28s linear infinite',
+          willChange: 'transform',
+        }}
+      >
+        {band.map((item, i) => (
+          <div
+            key={i}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '0 32px', fontSize: '.78rem', fontWeight: 600,
+              color: 'rgba(255,255,255,.52)',
+              fontFamily: "'Sora',sans-serif",
+              textTransform: 'uppercase', whiteSpace: 'nowrap',
+              letterSpacing: '.6px',
+            }}
+          >
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: C.blue2, flexShrink: 0 }} />
+            {item}
+          </div>
+        ))}
+      </div>
+
+      {/* inject the GPU-friendly keyframe once */}
+      <style>{`
+        @keyframes marqueeScroll {
+          from { transform: translate3d(0,0,0); }
+          to   { transform: translate3d(-33.333%,0,0); }
+        }
+      `}</style>
+    </div>
+  )
+}
+
+/* ── MARQUEE ── */
+
+
+/* ── SECTION WRAPPER ── */
+function Section({ id, bg, children, py = 100 }) {
+  return (
+    <section id={id} style={{ padding: `${py}px 48px`, background: bg || C.surf, position: 'relative' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>{children}</div>
+    </section>
+  )
+}
+
+function SectionTag({ children, light }) {
+  return (
+    <div style={{
+      display: 'inline-flex', alignItems: 'center', gap: 7,
+      fontFamily: "'Sora',sans-serif", fontSize: '.72rem', fontWeight: 700,
+      color: light ? '#8b93ff' : C.blue, letterSpacing: '1.5px', textTransform: 'uppercase',
+      background: light ? 'rgba(68,81,244,.2)' : C.blue3,
+      border: `1px solid ${light ? 'rgba(68,81,244,.3)' : 'rgba(68,81,244,.15)'}`,
+      padding: '5px 14px', borderRadius: 100, marginBottom: 16,
+    }}>{children}</div>
+  )
+}
+
+function SectionTitle({ children, light, style = {} }) {
+  return (
+    <h2 style={{
+      fontSize: 'clamp(1.9rem,3vw,2.8rem)', fontWeight: 800, letterSpacing: '-1px',
+      color: light ? '#fff' : C.ink, lineHeight: 1.12, marginBottom: 14,
+      fontFamily: "'Sora',sans-serif", ...style,
+    }}>{children}</h2>
+  )
+}
+
+/* ── PROBLEMS ── */
+const pains = [
+  'Missed or delayed patient visits that damage care quality and agency reputation',
+  'Constant rescheduling and last-minute cancellations draining coordinator time',
+  'Clinician availability conflicts creating gaps in patient coverage areas',
+  'Delayed referral processing slowing admissions and creating bottlenecks',
+  'Communication gaps between staff, clinicians, and office teams causing errors',
+]
+
+function PainItem({ text }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{
+      display: 'flex', alignItems: 'flex-start', gap: 14, padding: '16px 18px',
+      borderRadius: 12,
+      border: `1px solid ${hov ? 'rgba(68,81,244,.4)' : 'rgba(255,255,255,.08)'}`,
+      background: hov ? 'rgba(68,81,244,.1)' : 'rgba(255,255,255,.04)', transition: 'all .25s',
+    }}>
+      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(68,81,244,.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      </div>
+      <span style={{ fontSize: '.88rem', color: 'rgba(255,255,255,.75)', lineHeight: 1.55 }}>{text}</span>
+    </div>
+  )
+}
+
+function Problems() {
+  return (
+    <Section id="problems" bg={C.ink}>
+      <SectionTag light>The Problem</SectionTag>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'start', marginTop: 8 }}>
+        <div>
+          <SectionTitle light style={{ maxWidth: 400 }}>Scheduling chaos is killing your agency's growth</SectionTitle>
+          <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,.5)', lineHeight: 1.75, marginBottom: 32 }}>
+            Without proper coordination, home health agencies lose revenue, clinicians, and patients every week.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {pains.map((p, i) => <PainItem key={i} text={p} />)}
+          </div>
+        </div>
+
+        <div style={{ background: 'linear-gradient(140deg,rgba(68,81,244,.15),rgba(124,92,252,.1))', border: '1px solid rgba(68,81,244,.25)', borderRadius: 22, padding: 42, position: 'sticky', top: 100 }}>
+          <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: 14, lineHeight: 1.3, fontFamily: "'Sora',sans-serif" }}>
+            The operational cost is higher than you think
+          </h3>
+          <p style={{ fontSize: '.9rem', color: 'rgba(255,255,255,.55)', lineHeight: 1.75 }}>
+            Every missed visit, delayed intake, and scheduling conflict compounds — slowing growth, frustrating clinicians, and reducing patient satisfaction scores.
+          </p>
+          <div style={{ display: 'flex', gap: 24, marginTop: 32 }}>
+            {[['40%', 'Admin time wasted on rescheduling'], ['3x', 'Revenue lost per missed visit']].map(([n, l]) => (
+              <div key={l}>
+                <div style={{ fontFamily: "'Sora',sans-serif", fontSize: '2.4rem', fontWeight: 800, color: C.blue2, lineHeight: 1 }}>{n}</div>
+                <div style={{ fontSize: '.75rem', color: 'rgba(255,255,255,.45)', marginTop: 4 }}>{l}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 32, padding: 20, background: 'rgba(68,81,244,.15)', borderRadius: 14, border: '1px solid rgba(68,81,244,.25)' }}>
+            <p style={{ fontSize: '.88rem', color: 'rgba(255,255,255,.82)', lineHeight: 1.65, fontStyle: 'italic' }}>
+              "We were losing 8–10 visits a week to scheduling errors before we brought in dedicated coordinators. The impact on revenue was devastating."
+            </p>
+            <p style={{ fontSize: '.78rem', color: 'rgba(255,255,255,.4)', marginTop: 10 }}>— Home Health Agency Director, Texas</p>
+          </div>
+        </div>
+      </div>
+    </Section>
+  )
+}
+
+/* ── SERVICES ── */
+const services = [
+  {
+    icon: (stroke) => <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>,
+    title: 'Scheduling & Visit Coordination',
+    desc: 'SOCs, evaluations, revisits, recertifications, and discharges scheduled and confirmed — with real-time calendar management and clinician matching.',
+    tags: ['SOC', 'Revisits', 'Recerts', 'Discharges'],
+  },
+  {
+    icon: (stroke) => <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><line x1="20" y1="8" x2="20" y2="14" /><line x1="23" y1="11" x2="17" y2="11" /></svg>,
+    title: 'Intake & Referral Coordination',
+    desc: 'Referral intake processing, patient onboarding, start of care scheduling, and insurance/authorization coordination — handled end to end.',
+    tags: ['Referrals', 'Onboarding', 'Auth'],
+  },
+  {
+    icon: (stroke) => <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" /></svg>,
+    title: 'Agency & Clinician Coordination',
+    desc: 'Coordination with DONs, case managers, and field staff. Escalation handling, schedule updates, and proactive daily operational communication.',
+    tags: ['DON', 'Case Mgmt', 'Staffing'],
+  },
+  {
+    icon: (stroke) => <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /></svg>,
+    title: 'Documentation & Tracking Support',
+    desc: 'Monitoring overdue notes, pending documentation, SOC/reassessment tracking, cancellation logs, and EMR update support for full compliance visibility.',
+    tags: ['EMR', 'Compliance', 'Tracking'],
+  },
+  {
+    icon: (stroke) => <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>,
+    title: 'Patient Communication Support',
+    desc: 'Appointment confirmations, schedule reminders, change notifications, and patient communication support that reduces no-shows and builds trust.',
+    tags: ['Reminders', 'Notifications', 'Follow-ups'],
+  },
+]
+
+function ServiceCard({ icon, title, desc, tags }) {
+  const [hov, setHov] = useState(false)
+  return (
+    <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{
+      background: C.white, border: `1px solid ${C.border}`, borderRadius: 18, padding: 30,
+      boxShadow: hov ? '0 20px 50px rgba(68,81,244,.13)' : '0 4px 20px rgba(68,81,244,.06)',
+      transition: 'all .3s', position: 'relative', overflow: 'hidden',
+      transform: hov ? 'translateY(-5px)' : 'none',
+    }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg,${C.blue},${C.violet})`, transform: `scaleX(${hov ? 1 : 0})`, transformOrigin: 'left', transition: 'transform .3s' }} />
+      <div style={{ width: 48, height: 48, borderRadius: 14, background: hov ? C.blue : C.blue3, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18, transition: 'background .3s' }}>
+        {icon(hov ? '#fff' : C.blue)}
+      </div>
+      <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: 10, color: C.ink, fontFamily: "'Sora',sans-serif" }}>{title}</h3>
+      <p style={{ fontSize: '.86rem', color: C.muted, lineHeight: 1.7 }}>{desc}</p>
+      <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+        {tags.map(t => <span key={t} style={{ fontSize: '.72rem', fontWeight: 600, padding: '4px 10px', borderRadius: 100, background: C.blue3, color: C.blue, fontFamily: "'Sora',sans-serif" }}>{t}</span>)}
+      </div>
+    </div>
+  )
+}
+
+function Services() {
+  return (
+    <Section id="services" bg={C.surf}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'end', marginBottom: 56 }}>
+        <div>
+          <SectionTag>Our Services</SectionTag>
+          <SectionTitle>Everything your agency needs to run smoothly</SectionTitle>
+        </div>
+        <p style={{ fontSize: '1rem', color: C.muted, lineHeight: 1.75 }}>Our remote professionals integrate directly into your workflow — handling coordination so your clinical team stays focused on patients.</p>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 22 }}>
+        {services.map((s, i) => <ServiceCard key={i} {...s} />)}
+        {/* Accent card */}
+        <div style={{ background: `linear-gradient(135deg,${C.blue},${C.violet})`, borderRadius: 18, padding: 30, boxShadow: '0 8px 30px rgba(68,81,244,.35)', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(255,255,255,.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
+            <svg width={22} height={22} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+          </div>
+          <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: 10, color: '#fff', fontFamily: "'Sora',sans-serif" }}>Full Operational Support</h3>
+          <p style={{ fontSize: '.86rem', color: 'rgba(255,255,255,.8)', lineHeight: 1.7 }}>All five service areas combined into one dedicated coordination package — your complete back-office operations handled remotely.</p>
+          <div style={{ marginTop: 16 }}>
+            <span style={{ fontSize: '.72rem', fontWeight: 600, padding: '4px 10px', borderRadius: 100, background: 'rgba(255,255,255,.2)', color: '#fff', fontFamily: "'Sora',sans-serif" }}>All Inclusive</span>
+          </div>
+        </div>
+      </div>
+    </Section>
+  )
+}
+
+/* ── HOW IT WORKS ── */
+const steps = [
+  { n: '01', title: 'Free Consultation', desc: 'We assess your current scheduling challenges, workflow gaps, and operational needs during a complimentary discovery call.' },
+  { n: '02', title: 'Custom Setup', desc: 'We configure our coordination workflows to match your EMR, communication tools, and agency-specific processes.', active: true },
+  { n: '03', title: 'Team Integration', desc: 'Your dedicated coordinator joins your team channels, learns your clinicians, and begins managing schedules immediately.' },
+  { n: '04', title: 'Scale With You', desc: 'As your patient volume grows, we scale support capacity without the cost and time of in-house hiring.' },
+]
+
+function HowItWorks() {
+  return (
+    <Section id="how" bg={C.white}>
+      <div style={{ textAlign: 'center', maxWidth: 600, margin: '0 auto 60px' }}>
+        <SectionTag>How It Works</SectionTag>
+        <SectionTitle>Up and running in days, not months</SectionTitle>
+        <p style={{ fontSize: '1rem', color: C.muted, lineHeight: 1.75 }}>No complicated onboarding. We learn your workflows and integrate directly into your existing systems.</p>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 0, position: 'relative' }}>
+        <div style={{ position: 'absolute', top: 35, left: '12.5%', right: '12.5%', height: 1.5, background: `repeating-linear-gradient(90deg,${C.blue} 0,${C.blue} 8px,transparent 8px,transparent 16px)`, zIndex: 0 }} />
+        {steps.map((s, i) => (
+          <div key={i} style={{ textAlign: 'center', padding: '0 20px', position: 'relative', zIndex: 1 }}>
+            <div style={{
+              width: 72, height: 72, borderRadius: '50%',
+              background: s.active ? C.blue : C.white,
+              border: `2px solid ${s.active ? C.blue : C.border}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 22px',
+              fontFamily: "'Sora',sans-serif", fontSize: '1.3rem', fontWeight: 800,
+              color: s.active ? '#fff' : C.blue,
+              boxShadow: s.active ? '0 8px 28px rgba(68,81,244,.4)' : '0 4px 20px rgba(68,81,244,.1)',
+            }}>{s.n}</div>
+            <h4 style={{ fontSize: '.97rem', fontWeight: 700, marginBottom: 8, color: C.ink, fontFamily: "'Sora',sans-serif" }}>{s.title}</h4>
+            <p style={{ fontSize: '.84rem', color: C.muted, lineHeight: 1.65 }}>{s.desc}</p>
+          </div>
+        ))}
+      </div>
+    </Section>
+  )
+}
+
+/* ── BENEFITS ── */
+const benefits = [
+  { title: 'Reduce Administrative Workload', desc: 'Offload scheduling, intake, and coordination to dedicated professionals — freeing your team for clinical work.', icon: <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /> },
+  { title: 'Improve Visit Completion Rates', desc: 'Fewer gaps, fewer missed visits, and better schedule adherence across your entire patient census.', icon: <><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></> },
+  { title: 'Faster Referral Turnaround', desc: 'Cut intake processing time with dedicated referral coordinators who track and follow up every lead.', icon: <><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></> },
+  { title: 'Better Clinician Utilization', desc: 'Match clinicians to patients intelligently based on availability, location, and specialty.', icon: <><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" /></> },
+  { title: 'Scalable Without Extra Hiring', desc: 'Grow your patient volume without the cost and delay of recruiting and training in-house coordination staff.', icon: <><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></> },
+  { title: 'Dedicated Remote Professionals', desc: 'Not a call center — your own named coordinators who know your agency, your clinicians, and your patients.', icon: <><rect x="1" y="3" width="15" height="13" rx="2" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></> },
+]
+
+function Benefits() {
+  return (
+    <Section id="benefits" bg={C.surf}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center', marginBottom: 56 }}>
+        <div>
+          <SectionTag>Why GrowEdgeX</SectionTag>
+          <SectionTitle>Built for home health. Proven in the field.</SectionTitle>
+        </div>
+        <p style={{ fontSize: '1rem', color: C.muted, lineHeight: 1.75 }}>Our coordinators are trained specifically on home health operations — not generic admin work. That specialization makes all the difference.</p>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
+        {benefits.map((b, i) => {
+          const [hov, setHov] = useState(false)
+          return (
+            <div key={i} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{
+              display: 'flex', alignItems: 'flex-start', gap: 16,
+              background: C.white, border: `1px solid ${hov ? 'rgba(68,81,244,.3)' : C.border}`,
+              borderRadius: 12, padding: 24,
+              boxShadow: hov ? '0 12px 36px rgba(68,81,244,.1)' : '0 4px 16px rgba(68,81,244,.05)',
+              transform: hov ? 'translateY(-3px)' : 'none', transition: 'all .25s',
+            }}>
+              <div style={{ width: 42, height: 42, borderRadius: 12, background: `linear-gradient(135deg,${C.blue},${C.violet})`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 12px rgba(68,81,244,.3)' }}>
+                <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">{b.icon}</svg>
+              </div>
+              <div>
+                <h4 style={{ fontSize: '.92rem', fontWeight: 700, color: C.ink, marginBottom: 5, fontFamily: "'Sora',sans-serif" }}>{b.title}</h4>
+                <p style={{ fontSize: '.82rem', color: C.muted, lineHeight: 1.6 }}>{b.desc}</p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </Section>
+  )
+}
+
+/* ── WHO WE SERVE ── */
+const audience = [
+  { title: 'Home Health Agencies', desc: 'Small to mid-size agencies needing reliable scheduling support', icon: <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /> },
+  { title: 'Skilled Nursing Teams', desc: 'Coordination support for complex skilled nursing scheduling', icon: <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" /> },
+  { title: 'Therapy Staffing', desc: 'PT, OT, and ST scheduling coordination and optimization', icon: <><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" /></> },
+  { title: 'Multi-Location Operations', desc: 'Centralized coordination across multiple agency locations', icon: <><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" /></> },
+]
+
+function WhoWeServe() {
+  return (
+    <Section id="who" bg={C.white}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
+        <div>
+          <SectionTag>Who We Help</SectionTag>
+          <SectionTitle>Purpose-built for home health operations</SectionTitle>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 36 }}>
+            {audience.map((a, i) => {
+              const [hov, setHov] = useState(false)
+              return (
+                <div key={i} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{
+                  display: 'flex', alignItems: 'center', gap: 16,
+                  border: `1px solid ${hov ? C.blue : C.border}`,
+                  borderRadius: 12, padding: '20px 22px',
+                  background: hov ? C.blue3 : C.surf,
+                  transform: hov ? 'translateX(4px)' : 'none', transition: 'all .25s',
+                }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: hov ? C.blue : C.blue3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background .25s' }}>
+                    <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke={hov ? '#fff' : C.blue} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'stroke .25s' }}>{a.icon}</svg>
+                  </div>
+                  <div>
+                    <h4 style={{ fontSize: '.93rem', fontWeight: 700, color: C.ink, marginBottom: 3, fontFamily: "'Sora',sans-serif" }}>{a.title}</h4>
+                    <p style={{ fontSize: '.8rem', color: C.muted }}>{a.desc}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        <div style={{ paddingTop: 20, paddingLeft: 40, borderLeft: `3px solid ${C.blue3}` }}>
+          <p style={{ fontSize: '.85rem', fontWeight: 700, color: C.blue, letterSpacing: '1px', textTransform: 'uppercase', fontFamily: "'Sora',sans-serif", marginBottom: 8 }}>The GrowEdgeX Difference</p>
+          <h3 style={{ fontFamily: "'Sora',sans-serif", fontSize: '1.8rem', fontWeight: 800, color: C.ink, letterSpacing: '-.5px', lineHeight: 1.2, marginBottom: 20 }}>
+            We work as an extension of your team — not a vendor
+          </h3>
+          <p style={{ fontSize: '.95rem', color: C.muted, lineHeight: 1.75, marginBottom: 16 }}>
+            Our coordinators are embedded in your daily operations. They know your clinicians by name, understand your service territories, and proactively communicate rather than waiting to be told.
+          </p>
+          <p style={{ fontSize: '.95rem', color: C.muted, lineHeight: 1.75, marginBottom: 32 }}>
+            This isn't generic outsourcing — it's home health expertise applied to your specific agency needs.
+          </p>
+          {['No long-term contracts required', 'Home health trained coordinators', 'Works with your existing EMR systems', 'Scales with your patient volume'].map(t => (
+            <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: '.88rem', color: C.muted, marginBottom: 12 }}>
+              <div style={{ width: 22, height: 22, borderRadius: '50%', background: C.blue3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke={C.blue} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+              </div>
+              {t}
+            </div>
+          ))}
+          <div style={{ marginTop: 32 }}>
+            <Btn onClick={() => scrollTo('cta')} style={{ padding: '13px 28px', fontSize: '.93rem' }}>Get Started Today →</Btn>
+          </div>
+        </div>
+      </div>
+    </Section>
+  )
+}
+
+/* ── CTA FORM ── */
+function CTASection() {
+  const [form, setForm] = useState({ name: '', email: '', agency: '', size: '', challenge: '' })
+  const [submitted, setSubmitted] = useState(false)
+  const [hovBtn, setHovBtn] = useState(false)
+
+  const handleSubmit = () => {
+    if (!form.name || !form.email || !form.agency) {
+      alert('Please fill in your name, email, and agency name.')
+      return
+    }
+    setSubmitted(true)
+  }
+
+  const inputStyle = {
+    width: '100%', padding: '12px 16px', borderRadius: 10,
+    background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.18)',
+    color: '#fff', fontSize: '.88rem', fontFamily: "'Outfit',sans-serif", outline: 'none',
+  }
+
+  return (
+    <section id="cta" style={{ padding: '100px 48px', background: C.surf }}>
+      <div style={{
+        maxWidth: 1200, margin: '0 auto',
+        background: `linear-gradient(135deg,${C.ink2} 0%,${C.ink} 100%)`,
+        borderRadius: 28, padding: 80,
+        display: 'grid', gridTemplateColumns: '1fr 400px', gap: 60, alignItems: 'center',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        <div style={{ position: 'absolute', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle,rgba(68,81,244,.2) 0%,transparent 70%)', right: -150, top: -150, pointerEvents: 'none' }} />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <SectionTag light>Get Started Today</SectionTag>
+          <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 'clamp(1.8rem,3vw,2.8rem)', fontWeight: 800, color: '#fff', letterSpacing: '-.5px', lineHeight: 1.15, marginBottom: 16, marginTop: 8 }}>
+            Ready to fix your scheduling operations?
+          </h2>
+          <p style={{ fontSize: '.97rem', color: 'rgba(255,255,255,.55)', lineHeight: 1.75, marginBottom: 32 }}>
+            Book a free consultation and we'll show you exactly how GrowEdgeX can reduce your scheduling chaos, improve visit completion rates, and free your team to focus on patient care.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {[
+              { href: 'tel:+14699292524', text: '+1 469 929 2524', label: 'Call us directly at' },
+              { href: 'https://www.growedgex.com', text: 'www.growedgex.com', label: 'Visit us at' },
+            ].map(({ href, text, label }) => (
+              <a key={href} href={href} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: '.85rem', color: 'rgba(255,255,255,.6)', textDecoration: 'none' }}>
+                <div style={{ width: 34, height: 34, borderRadius: 9, background: 'rgba(68,81,244,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke={C.blue2} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013 10.79a19.79 19.79 0 01-3.07-8.67A2 2 0 011.9 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z" />
+                  </svg>
+                </div>
+                <span>{label} <strong style={{ color: 'rgba(255,255,255,.85)' }}>{text}</strong></span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.12)', borderRadius: 20, padding: 36, backdropFilter: 'blur(10px)', position: 'relative', zIndex: 1 }}>
+          {submitted ? (
+            <div style={{ textAlign: 'center', padding: '40px 0' }}>
+              <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(68,81,244,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="#8b93ff" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
+              </div>
+              <h4 style={{ fontFamily: "'Sora',sans-serif", fontSize: '1.2rem', fontWeight: 700, color: '#fff', marginBottom: 10 }}>Thank you, {form.name}!</h4>
+              <p style={{ fontSize: '.9rem', color: 'rgba(255,255,255,.55)', lineHeight: 1.7 }}>We've received your request. Our team will reach out within 24 hours to schedule your free consultation.</p>
+              <div style={{ marginTop: 24, padding: 14, borderRadius: 10, background: 'rgba(68,81,244,.2)', border: '1px solid rgba(68,81,244,.3)' }}>
+                <p style={{ fontSize: '.83rem', color: 'rgba(255,255,255,.6)' }}>Or call us now: <a href="tel:+14699292524" style={{ color: C.blue2, fontWeight: 600 }}>+1 469 929 2524</a></p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h4 style={{ fontFamily: "'Sora',sans-serif", fontSize: '1.1rem', fontWeight: 700, color: '#fff', marginBottom: 22 }}>Book Your Free Consultation</h4>
+              {[
+                { key: 'name', placeholder: 'Your Full Name', type: 'text' },
+                { key: 'email', placeholder: 'Agency Email Address', type: 'email' },
+                { key: 'agency', placeholder: 'Agency Name', type: 'text' },
+                { key: 'challenge', placeholder: 'Biggest Scheduling Challenge', type: 'text' },
+              ].map(f => (
+                <div key={f.key} style={{ marginBottom: 14 }}>
+                  <input type={f.type} placeholder={f.placeholder} value={form[f.key]}
+                    onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))} style={inputStyle} />
+                </div>
+              ))}
+              <div style={{ marginBottom: 14 }}>
+                <select value={form.size} onChange={e => setForm(p => ({ ...p, size: e.target.value }))}
+                  style={{ ...inputStyle, color: form.size ? '#fff' : 'rgba(255,255,255,.45)' }}>
+                  <option value="" disabled>Number of Patients / Census Size</option>
+                  <option value="under25">Under 25 patients</option>
+                  <option value="25to75">25–75 patients</option>
+                  <option value="75to150">75–150 patients</option>
+                  <option value="150plus">150+ patients</option>
+                </select>
+              </div>
+              <button onClick={handleSubmit} onMouseEnter={() => setHovBtn(true)} onMouseLeave={() => setHovBtn(false)}
+                style={{
+                  width: '100%', padding: 14, borderRadius: 100, border: 'none', cursor: 'pointer',
+                  background: `linear-gradient(90deg,${C.blue},${C.violet})`,
+                  fontFamily: "'Sora',sans-serif", fontSize: '.92rem', fontWeight: 700, color: '#fff',
+                  marginTop: 8,
+                  boxShadow: hovBtn ? '0 12px 36px rgba(68,81,244,.6)' : '0 6px 24px rgba(68,81,244,.4)',
+                  transform: hovBtn ? 'translateY(-2px)' : 'none', transition: 'all .25s',
+                }}>Schedule Free Consultation →</button>
+              <p style={{ textAlign: 'center', fontSize: '.75rem', color: 'rgba(255,255,255,.35)', marginTop: 12 }}>No commitment required · Response within 24 hours</p>
+            </>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ── FOOTER ── */
+function Footer() {
+  const footerLinks = {
+    Services: [
+      { label: 'Scheduling & Visits', id: 'services' },
+      { label: 'Intake & Referrals', id: 'services' },
+      { label: 'Clinician Coordination', id: 'services' },
+      { label: 'Documentation Tracking', id: 'services' },
+      { label: 'Patient Communication', id: 'services' },
+    ],
+    Company: [
+      { label: 'About Us', id: 'home' },
+      { label: 'Who We Serve', id: 'who' },
+      { label: 'How It Works', id: 'how' },
+      { label: 'Benefits', id: 'benefits' },
+    ],
+    Contact: [
+      { label: '+1 469 929 2524', href: 'tel:+14699292524' },
+      { label: 'www.growedgex.com', href: 'https://www.growedgex.com' },
+      { label: 'Free Consultation', id: 'cta' },
+    ],
+  }
+
+  return (
+    <footer style={{ background: C.ink, padding: '60px 48px 30px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 48, marginBottom: 48 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg,${C.blue},${C.violet})`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(68,81,244,.4)' }}>
+                <svg width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+              </div>
+              <span style={{ fontFamily: "'Sora',sans-serif", fontWeight: 800, fontSize: '1.15rem', color: '#fff', letterSpacing: '-.5px' }}>
+                Grow<span style={{ color: C.blue2 }}>EdgeX</span>
+              </span>
+            </div>
+            <p style={{ fontSize: '.85rem', color: 'rgba(255,255,255,.4)', lineHeight: 1.7, maxWidth: 260 }}>
+              Dedicated remote scheduling and intake coordination designed specifically for home health agencies. Reduce chaos. Improve outcomes.
+            </p>
+          </div>
+          {Object.entries(footerLinks).map(([col, links]) => (
+            <div key={col}>
+              <h5 style={{ fontFamily: "'Sora',sans-serif", fontSize: '.8rem', fontWeight: 700, color: 'rgba(255,255,255,.85)', letterSpacing: '.5px', textTransform: 'uppercase', marginBottom: 16 }}>{col}</h5>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {links.map(l => {
+                  const [hov, setHov] = useState(false)
+                  return (
+                    <li key={l.label}>
+                      {l.href
+                        ? <a href={l.href} target="_blank" rel="noopener noreferrer" onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{ fontSize: '.84rem', color: hov ? C.blue2 : 'rgba(255,255,255,.4)', transition: 'color .2s', textDecoration: 'none' }}>{l.label}</a>
+                        : <span onClick={() => scrollTo(l.id)} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{ fontSize: '.84rem', color: hov ? C.blue2 : 'rgba(255,255,255,.4)', transition: 'color .2s', cursor: 'pointer' }}>{l.label}</span>
+                      }
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div style={{ borderTop: '1px solid rgba(255,255,255,.08)', paddingTop: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <p style={{ fontSize: '.8rem', color: 'rgba(255,255,255,.3)' }}>© 2025 GrowEdgeX. All rights reserved.</p>
+          <div style={{ display: 'flex', gap: 20 }}>
+            {['Privacy Policy', 'Terms of Service'].map(t => {
+              const [hov, setHov] = useState(false)
+              return (
+                <span key={t} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+                  style={{ fontSize: '.78rem', color: hov ? C.blue2 : 'rgba(255,255,255,.3)', cursor: 'pointer', transition: 'color .2s' }}>{t}</span>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+/* ── PAGE ── */
+export default function Page() {
+  return (
+    <>
+      <GlobalStyles />
+      <Navbar />
+      <Hero />
+      <Marquee />
+      <Problems />
+      <Services />
+      <HowItWorks />
+      <Benefits />
+      <WhoWeServe />
+      <CTASection />
+      <Footer />
+    </>
+  )
+}
