@@ -1120,62 +1120,363 @@ function useMediaQuery() {
   return screenSize
 }
 
+// Custom hook for responsive breakpoints
+function useMediaQuery() {
+  const [isMobile, setIsMobile] = useState(false)
+  const [isTablet, setIsTablet] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const checkScreenSize = () => {
+      const width = window.innerWidth
+      setIsMobile(width <= 768)
+      setIsTablet(width > 768 && width <= 1024)
+    }
+
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+    return () => window.removeEventListener('resize', checkScreenSize)
+  }, [])
+
+  return { isMobile, isTablet }
+}
+
+// Audience card component – extracted to use useState at top level
+function AudienceCard({ audience, index, isMobile, isTablet }) {
+  const [hov, setHov] = useState(false)
+
+  const getGap = () => {
+    if (isMobile) return 12
+    return 16
+  }
+
+  const getPadding = () => {
+    if (isMobile) return '14px 16px'
+    if (isTablet) return '18px 20px'
+    return '20px 22px'
+  }
+
+  const getIconSize = () => {
+    if (isMobile) return 38
+    if (isTablet) return 42
+    return 44
+  }
+
+  const getIconSvgSize = () => {
+    if (isMobile) return 17
+    if (isTablet) return 19
+    return 20
+  }
+
+  const getTitleFontSize = () => {
+    if (isMobile) return '.86rem'
+    if (isTablet) return '.9rem'
+    return '.93rem'
+  }
+
+  const getDescFontSize = () => {
+    if (isMobile) return '.74rem'
+    if (isTablet) return '.78rem'
+    return '.8rem'
+  }
+
+  return (
+    <AnimatedText delay={0.1 * index} direction="left">
+      <div
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: getGap(),
+          border: `1px solid ${hov ? C.blue : C.border}`,
+          borderRadius: 12,
+          padding: getPadding(),
+          background: hov ? C.blue3 : C.surf,
+          transform: hov ? 'translateX(4px)' : 'none',
+          transition: 'all .25s',
+        }}
+      >
+        <div
+          style={{
+            width: getIconSize(),
+            height: getIconSize(),
+            borderRadius: 12,
+            background: hov ? C.blue : C.blue3,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            transition: 'background .25s',
+          }}
+        >
+          <svg
+            width={getIconSvgSize()}
+            height={getIconSvgSize()}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={hov ? '#fff' : C.blue}
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ transition: 'stroke .25s' }}
+          >
+            {audience.icon}
+          </svg>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h4
+            style={{
+              fontSize: getTitleFontSize(),
+              fontWeight: 700,
+              color: C.ink,
+              marginBottom: 3,
+              fontFamily: "'Sora',sans-serif",
+            }}
+          >
+            {audience.title}
+          </h4>
+          <p
+            style={{
+              fontSize: getDescFontSize(),
+              color: C.muted,
+              lineHeight: 1.5,
+            }}
+          >
+            {audience.desc}
+          </p>
+        </div>
+      </div>
+    </AnimatedText>
+  )
+}
+
+// Corrected WhoWeServe component
 function WhoWeServe() {
   const { isMobile, isTablet } = useMediaQuery()
+
+  const getGridGap = () => {
+    if (isMobile) return 32
+    if (isTablet) return 56
+    return 80
+  }
+
+  const getAudienceGridGap = () => {
+    if (isMobile) return 12
+    return 16
+  }
+
+  const getAudienceMarginTop = () => {
+    if (isMobile) return 24
+    if (isTablet) return 30
+    return 36
+  }
+
+  const getRightSectionPaddingTop = () => {
+    if (isMobile) return 0
+    if (isTablet) return 10
+    return 20
+  }
+
+  const getRightSectionPaddingLeft = () => {
+    if (isMobile) return 0
+    if (isTablet) return 28
+    return 40
+  }
+
+  const getTagFontSize = () => {
+    if (isMobile) return '.72rem'
+    if (isTablet) return '.78rem'
+    return '.85rem'
+  }
+
+  const getTitleFontSize = () => {
+    if (isMobile) return '1.3rem'
+    if (isTablet) return '1.55rem'
+    return '1.8rem'
+  }
+
+  const getTextFontSize = () => {
+    if (isMobile) return '.86rem'
+    if (isTablet) return '.92rem'
+    return '.95rem'
+  }
+
+  const getChecklistFontSize = () => {
+    if (isMobile) return '.82rem'
+    if (isTablet) return '.86rem'
+    return '.88rem'
+  }
+
+  const getChecklistMarginBottom = () => {
+    if (isMobile) return 10
+    return 12
+  }
+
+  const getBtnPadding = () => {
+    if (isMobile) return '10px 20px'
+    if (isTablet) return '12px 24px'
+    return '13px 28px'
+  }
+
+  const getBtnFontSize = () => {
+    if (isMobile) return '.84rem'
+    if (isTablet) return '.88rem'
+    return '.93rem'
+  }
+
   return (
     <Section id="who" bg={C.white}>
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 32 : isTablet ? 56 : 80, alignItems: 'start' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+          gap: getGridGap(),
+          alignItems: 'start',
+        }}
+      >
+        {/* Left column – Who We Help list */}
         <div>
           <SectionTag>Who We Help</SectionTag>
           <SectionTitle>Purpose-built for home health operations</SectionTitle>
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 12 : 16, marginTop: isMobile ? 24 : isTablet ? 30 : 36 }}>
-            {audience.map((a, i) => {
-              const [hov, setHov] = useState(false)
-              return (
-                <AnimatedText key={i} delay={0.1 * i} direction="left">
-                  <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{
-                    display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 16,
-                    border: `1px solid ${hov ? C.blue : C.border}`,
-                    borderRadius: 12, padding: isMobile ? '14px 16px' : isTablet ? '18px 20px' : '20px 22px',
-                    background: hov ? C.blue3 : C.surf,
-                    transform: hov ? 'translateX(4px)' : 'none', transition: 'all .25s',
-                  }}>
-                    <div style={{ width: isMobile ? 38 : isTablet ? 42 : 44, height: isMobile ? 38 : isTablet ? 42 : 44, borderRadius: 12, background: hov ? C.blue : C.blue3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background .25s' }}>
-                      <svg width={isMobile ? 17 : isTablet ? 19 : 20} height={isMobile ? 17 : isTablet ? 19 : 20} viewBox="0 0 24 24" fill="none" stroke={hov ? '#fff' : C.blue} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'stroke .25s' }}>{a.icon}</svg>
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h4 style={{ fontSize: isMobile ? '.86rem' : isTablet ? '.9rem' : '.93rem', fontWeight: 700, color: C.ink, marginBottom: 3, fontFamily: "'Sora',sans-serif" }}>{a.title}</h4>
-                      <p style={{ fontSize: isMobile ? '.74rem' : isTablet ? '.78rem' : '.8rem', color: C.muted, lineHeight: 1.5 }}>{a.desc}</p>
-                    </div>
-                  </div>
-                </AnimatedText>
-              )
-            })}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+              gap: getAudienceGridGap(),
+              marginTop: getAudienceMarginTop(),
+            }}
+          >
+            {audience.map((a, i) => (
+              <AudienceCard
+                key={i}
+                audience={a}
+                index={i}
+                isMobile={isMobile}
+                isTablet={isTablet}
+              />
+            ))}
           </div>
         </div>
 
+        {/* Right column – The GrowEdgeX Difference */}
         <AnimatedText delay={0.3} direction="right">
-          <div style={{ paddingTop: isMobile ? 0 : isTablet ? 10 : 20, paddingLeft: isMobile ? 0 : isTablet ? 28 : 40, borderLeft: isMobile ? 'none' : `3px solid ${C.blue3}` }}>
-            <p style={{ fontSize: isMobile ? '.72rem' : isTablet ? '.78rem' : '.85rem', fontWeight: 700, color: C.blue, letterSpacing: '1px', textTransform: 'uppercase', fontFamily: "'Sora',sans-serif", marginBottom: 8 }}>The GrowEdgeX Difference</p>
-            <h3 style={{ fontFamily: "'Sora',sans-serif", fontSize: isMobile ? '1.3rem' : isTablet ? '1.55rem' : '1.8rem', fontWeight: 800, color: C.ink, letterSpacing: '-.5px', lineHeight: 1.2, marginBottom: isMobile ? 16 : 20 }}>
+          <div
+            style={{
+              paddingTop: getRightSectionPaddingTop(),
+              paddingLeft: getRightSectionPaddingLeft(),
+              borderLeft: isMobile ? 'none' : `3px solid ${C.blue3}`,
+            }}
+          >
+            <p
+              style={{
+                fontSize: getTagFontSize(),
+                fontWeight: 700,
+                color: C.blue,
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
+                fontFamily: "'Sora',sans-serif",
+                marginBottom: 8,
+              }}
+            >
+              The GrowEdgeX Difference
+            </p>
+            <h3
+              style={{
+                fontFamily: "'Sora',sans-serif",
+                fontSize: getTitleFontSize(),
+                fontWeight: 800,
+                color: C.ink,
+                letterSpacing: '-.5px',
+                lineHeight: 1.2,
+                marginBottom: isMobile ? 16 : 20,
+              }}
+            >
               We work as an extension of your team — not a vendor
             </h3>
-            <p style={{ fontSize: isMobile ? '.86rem' : isTablet ? '.92rem' : '.95rem', color: C.muted, lineHeight: 1.75, marginBottom: 16 }}>
-              Our coordinators are embedded in your daily operations. They know your clinicians by name, understand your service territories, and proactively communicate rather than waiting to be told.
+            <p
+              style={{
+                fontSize: getTextFontSize(),
+                color: C.muted,
+                lineHeight: 1.75,
+                marginBottom: 16,
+              }}
+            >
+              Our coordinators are embedded in your daily operations. They know
+              your clinicians by name, understand your service territories, and
+              proactively communicate rather than waiting to be told.
             </p>
-            <p style={{ fontSize: isMobile ? '.86rem' : isTablet ? '.92rem' : '.95rem', color: C.muted, lineHeight: 1.75, marginBottom: isMobile ? 24 : 32 }}>
-              This isn't generic outsourcing — it's home health expertise applied to your specific agency needs.
+            <p
+              style={{
+                fontSize: getTextFontSize(),
+                color: C.muted,
+                lineHeight: 1.75,
+                marginBottom: isMobile ? 24 : 32,
+              }}
+            >
+              This isn't generic outsourcing — it's home health expertise
+              applied to your specific agency needs.
             </p>
-            {['No long-term contracts required', 'Home health trained coordinators', 'Works with your existing EMR systems', 'Scales with your patient volume'].map(t => (
-              <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: isMobile ? '.82rem' : isTablet ? '.86rem' : '.88rem', color: C.muted, marginBottom: isMobile ? 10 : 12 }}>
-                <div style={{ width: 22, height: 22, borderRadius: '50%', background: C.blue3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke={C.blue} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+
+            {[
+              'No long-term contracts required',
+              'Home health trained coordinators',
+              'Works with your existing EMR systems',
+              'Scales with your patient volume',
+            ].map((t, idx) => (
+              <div
+                key={idx}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  fontSize: getChecklistFontSize(),
+                  color: C.muted,
+                  marginBottom: getChecklistMarginBottom(),
+                }}
+              >
+                <div
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: '50%',
+                    background: C.blue3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <svg
+                    width={12}
+                    height={12}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke={C.blue}
+                    strokeWidth={2.5}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                 </div>
                 {t}
               </div>
             ))}
+
             <div style={{ marginTop: isMobile ? 24 : 32 }}>
-              <Btn onClick={() => scrollTo('cta')} style={{ padding: isMobile ? '10px 20px' : isTablet ? '12px 24px' : '13px 28px', fontSize: isMobile ? '.84rem' : isTablet ? '.88rem' : '.93rem', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'center' : 'flex-start' }}>Get Started Today →</Btn>
+              <Btn
+                onClick={() => scrollTo('cta')}
+                style={{
+                  padding: getBtnPadding(),
+                  fontSize: getBtnFontSize(),
+                  width: isMobile ? '100%' : 'auto',
+                  justifyContent: isMobile ? 'center' : 'flex-start',
+                }}
+              >
+                Get Started Today →
+              </Btn>
             </div>
           </div>
         </AnimatedText>
