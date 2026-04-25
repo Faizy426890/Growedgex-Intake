@@ -1006,32 +1006,57 @@ const audience = [
   { title: 'Multi-Location Operations', desc: 'Centralized coordination across multiple agency locations', icon: <><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" /></> },
 ]
 
+function useMediaQuery() {
+  const [screenSize, setScreenSize] = useState({
+    isMobile: false,
+    isTablet: false,
+    isDesktop: true
+  })
+
+  useEffect(() => {
+    const updateScreenSize = () => {
+      const width = window.innerWidth
+      setScreenSize({
+        isMobile: width <= 640,
+        isTablet: width > 640 && width <= 1024,
+        isDesktop: width > 1024
+      })
+    }
+
+    updateScreenSize()
+    window.addEventListener('resize', updateScreenSize)
+    return () => window.removeEventListener('resize', updateScreenSize)
+  }, [])
+
+  return screenSize
+}
+
 function WhoWeServe() {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+  const { isMobile, isTablet } = useMediaQuery()
   return (
     <Section id="who" bg={C.white}>
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 40 : 80, alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 32 : isTablet ? 56 : 80, alignItems: 'start' }}>
         <div>
           <SectionTag>Who We Help</SectionTag>
           <SectionTitle>Purpose-built for home health operations</SectionTitle>
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, marginTop: 36 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? 12 : 16, marginTop: isMobile ? 24 : isTablet ? 30 : 36 }}>
             {audience.map((a, i) => {
               const [hov, setHov] = useState(false)
               return (
                 <AnimatedText key={i} delay={0.1 * i} direction="left">
                   <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{
-                    display: 'flex', alignItems: 'center', gap: 16,
+                    display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 16,
                     border: `1px solid ${hov ? C.blue : C.border}`,
-                    borderRadius: 12, padding: isMobile ? '16px 18px' : '20px 22px',
+                    borderRadius: 12, padding: isMobile ? '14px 16px' : isTablet ? '18px 20px' : '20px 22px',
                     background: hov ? C.blue3 : C.surf,
                     transform: hov ? 'translateX(4px)' : 'none', transition: 'all .25s',
                   }}>
-                    <div style={{ width: isMobile ? 40 : 44, height: isMobile ? 40 : 44, borderRadius: 12, background: hov ? C.blue : C.blue3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background .25s' }}>
-                      <svg width={isMobile ? 18 : 20} height={isMobile ? 18 : 20} viewBox="0 0 24 24" fill="none" stroke={hov ? '#fff' : C.blue} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'stroke .25s' }}>{a.icon}</svg>
+                    <div style={{ width: isMobile ? 38 : isTablet ? 42 : 44, height: isMobile ? 38 : isTablet ? 42 : 44, borderRadius: 12, background: hov ? C.blue : C.blue3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background .25s' }}>
+                      <svg width={isMobile ? 17 : isTablet ? 19 : 20} height={isMobile ? 17 : isTablet ? 19 : 20} viewBox="0 0 24 24" fill="none" stroke={hov ? '#fff' : C.blue} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'stroke .25s' }}>{a.icon}</svg>
                     </div>
-                    <div>
-                      <h4 style={{ fontSize: isMobile ? '.88rem' : '.93rem', fontWeight: 700, color: C.ink, marginBottom: 3, fontFamily: "'Sora',sans-serif" }}>{a.title}</h4>
-                      <p style={{ fontSize: isMobile ? '.76rem' : '.8rem', color: C.muted }}>{a.desc}</p>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h4 style={{ fontSize: isMobile ? '.86rem' : isTablet ? '.9rem' : '.93rem', fontWeight: 700, color: C.ink, marginBottom: 3, fontFamily: "'Sora',sans-serif" }}>{a.title}</h4>
+                      <p style={{ fontSize: isMobile ? '.74rem' : isTablet ? '.78rem' : '.8rem', color: C.muted, lineHeight: 1.5 }}>{a.desc}</p>
                     </div>
                   </div>
                 </AnimatedText>
@@ -1041,27 +1066,27 @@ function WhoWeServe() {
         </div>
 
         <AnimatedText delay={0.3} direction="right">
-          <div style={{ paddingTop: isMobile ? 0 : 20, paddingLeft: isMobile ? 0 : 40, borderLeft: isMobile ? 'none' : `3px solid ${C.blue3}` }}>
-            <p style={{ fontSize: isMobile ? '.8rem' : '.85rem', fontWeight: 700, color: C.blue, letterSpacing: '1px', textTransform: 'uppercase', fontFamily: "'Sora',sans-serif", marginBottom: 8 }}>The GrowEdgeX Difference</p>
-            <h3 style={{ fontFamily: "'Sora',sans-serif", fontSize: isMobile ? '1.4rem' : '1.8rem', fontWeight: 800, color: C.ink, letterSpacing: '-.5px', lineHeight: 1.2, marginBottom: 20 }}>
+          <div style={{ paddingTop: isMobile ? 0 : isTablet ? 10 : 20, paddingLeft: isMobile ? 0 : isTablet ? 28 : 40, borderLeft: isMobile ? 'none' : `3px solid ${C.blue3}` }}>
+            <p style={{ fontSize: isMobile ? '.72rem' : isTablet ? '.78rem' : '.85rem', fontWeight: 700, color: C.blue, letterSpacing: '1px', textTransform: 'uppercase', fontFamily: "'Sora',sans-serif", marginBottom: 8 }}>The GrowEdgeX Difference</p>
+            <h3 style={{ fontFamily: "'Sora',sans-serif", fontSize: isMobile ? '1.3rem' : isTablet ? '1.55rem' : '1.8rem', fontWeight: 800, color: C.ink, letterSpacing: '-.5px', lineHeight: 1.2, marginBottom: isMobile ? 16 : 20 }}>
               We work as an extension of your team — not a vendor
             </h3>
-            <p style={{ fontSize: isMobile ? '.88rem' : '.95rem', color: C.muted, lineHeight: 1.75, marginBottom: 16 }}>
+            <p style={{ fontSize: isMobile ? '.86rem' : isTablet ? '.92rem' : '.95rem', color: C.muted, lineHeight: 1.75, marginBottom: 16 }}>
               Our coordinators are embedded in your daily operations. They know your clinicians by name, understand your service territories, and proactively communicate rather than waiting to be told.
             </p>
-            <p style={{ fontSize: isMobile ? '.88rem' : '.95rem', color: C.muted, lineHeight: 1.75, marginBottom: 32 }}>
+            <p style={{ fontSize: isMobile ? '.86rem' : isTablet ? '.92rem' : '.95rem', color: C.muted, lineHeight: 1.75, marginBottom: isMobile ? 24 : 32 }}>
               This isn't generic outsourcing — it's home health expertise applied to your specific agency needs.
             </p>
             {['No long-term contracts required', 'Home health trained coordinators', 'Works with your existing EMR systems', 'Scales with your patient volume'].map(t => (
-              <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: isMobile ? '.84rem' : '.88rem', color: C.muted, marginBottom: 12 }}>
+              <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: isMobile ? '.82rem' : isTablet ? '.86rem' : '.88rem', color: C.muted, marginBottom: isMobile ? 10 : 12 }}>
                 <div style={{ width: 22, height: 22, borderRadius: '50%', background: C.blue3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width={12} height={12} viewBox="0 0 24 24" fill="none" stroke={C.blue} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                 </div>
                 {t}
               </div>
             ))}
-            <div style={{ marginTop: 32 }}>
-              <Btn onClick={() => scrollTo('cta')} style={{ padding: isMobile ? '11px 22px' : '13px 28px', fontSize: isMobile ? '.85rem' : '.93rem' }}>Get Started Today →</Btn>
+            <div style={{ marginTop: isMobile ? 24 : 32 }}>
+              <Btn onClick={() => scrollTo('cta')} style={{ padding: isMobile ? '10px 20px' : isTablet ? '12px 24px' : '13px 28px', fontSize: isMobile ? '.84rem' : isTablet ? '.88rem' : '.93rem', width: isMobile ? '100%' : 'auto', justifyContent: isMobile ? 'center' : 'flex-start' }}>Get Started Today →</Btn>
             </div>
           </div>
         </AnimatedText>
@@ -1190,8 +1215,84 @@ function CTASection() {
 }
 
 /* ── FOOTER ── */
-function Footer() {
+// Helper component for footer links with hover state
+function FooterLink({ item }) {
+  const [hov, setHov] = useState(false)
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+
+  if (item.href) {
+    return (
+      <li>
+        <a
+          href={item.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          onMouseEnter={() => setHov(true)}
+          onMouseLeave={() => setHov(false)}
+          style={{
+            fontSize: isMobile ? '.8rem' : '.84rem',
+            color: hov ? C.blue2 : 'rgba(255,255,255,.4)',
+            transition: 'color .2s',
+            textDecoration: 'none',
+          }}
+        >
+          {item.label}
+        </a>
+      </li>
+    )
+  }
+
+  return (
+    <li>
+      <span
+        onClick={() => scrollTo(item.id)}
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        style={{
+          fontSize: isMobile ? '.8rem' : '.84rem',
+          color: hov ? C.blue2 : 'rgba(255,255,255,.4)',
+          transition: 'color .2s',
+          cursor: 'pointer',
+        }}
+      >
+        {item.label}
+      </span>
+    </li>
+  )
+}
+
+// Helper for footer text links (Privacy, Terms)
+function FooterTextLink({ label }) {
+  const [hov, setHov] = useState(false)
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768
+
+  return (
+    <span
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        fontSize: isMobile ? '.74rem' : '.78rem',
+        color: hov ? C.blue2 : 'rgba(255,255,255,.3)',
+        cursor: 'pointer',
+        transition: 'color .2s',
+      }}
+    >
+      {label}
+    </span>
+  )
+}
+
+// Corrected Footer component
+function Footer() {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   const footerLinks = {
     Services: [
       { label: 'Scheduling & Visits', id: 'services' },
@@ -1216,49 +1317,130 @@ function Footer() {
   return (
     <footer style={{ background: C.ink, padding: isMobile ? '50px 20px 30px' : '60px 48px 30px' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1fr 1fr', gap: isMobile ? 40 : 48, marginBottom: 48 }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 1fr 1fr',
+            gap: isMobile ? 40 : 48,
+            marginBottom: 48,
+          }}
+        >
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg,${C.blue},${C.violet})`, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(68,81,244,.4)' }}>
-                <svg width={17} height={17} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                marginBottom: 14,
+                cursor: 'pointer',
+              }}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
+                  background: `linear-gradient(135deg,${C.blue},${C.violet})`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 12px rgba(68,81,244,.4)',
+                }}
+              >
+                <svg
+                  width={17}
+                  height={17}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg>
               </div>
-              <span style={{ fontFamily: "'Sora',sans-serif", fontWeight: 800, fontSize: '1.15rem', color: '#fff', letterSpacing: '-.5px' }}>
+              <span
+                style={{
+                  fontFamily: "'Sora',sans-serif",
+                  fontWeight: 800,
+                  fontSize: '1.15rem',
+                  color: '#fff',
+                  letterSpacing: '-.5px',
+                }}
+              >
                 Grow<span style={{ color: C.blue2 }}>EdgeX</span>
               </span>
             </div>
-            <p style={{ fontSize: isMobile ? '.82rem' : '.85rem', color: 'rgba(255,255,255,.4)', lineHeight: 1.7, maxWidth: isMobile ? '100%' : 260 }}>
-              Dedicated remote scheduling and intake coordination designed specifically for home health agencies. Reduce chaos. Improve outcomes.
+            <p
+              style={{
+                fontSize: isMobile ? '.82rem' : '.85rem',
+                color: 'rgba(255,255,255,.4)',
+                lineHeight: 1.7,
+                maxWidth: isMobile ? '100%' : 260,
+              }}
+            >
+              Dedicated remote scheduling and intake coordination designed
+              specifically for home health agencies. Reduce chaos. Improve
+              outcomes.
             </p>
           </div>
+
           {Object.entries(footerLinks).map(([col, links]) => (
             <div key={col}>
-              <h5 style={{ fontFamily: "'Sora',sans-serif", fontSize: isMobile ? '.76rem' : '.8rem', fontWeight: 700, color: 'rgba(255,255,255,.85)', letterSpacing: '.5px', textTransform: 'uppercase', marginBottom: 16 }}>{col}</h5>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {links.map(l => {
-                  const [hov, setHov] = useState(false)
-                  return (
-                    <li key={l.label}>
-                      {l.href
-                        ? <a href={l.href} target="_blank" rel="noopener noreferrer" onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{ fontSize: isMobile ? '.8rem' : '.84rem', color: hov ? C.blue2 : 'rgba(255,255,255,.4)', transition: 'color .2s', textDecoration: 'none' }}>{l.label}</a>
-                        : <span onClick={() => scrollTo(l.id)} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{ fontSize: isMobile ? '.8rem' : '.84rem', color: hov ? C.blue2 : 'rgba(255,255,255,.4)', transition: 'color .2s', cursor: 'pointer' }}>{l.label}</span>
-                      }
-                    </li>
-                  )
-                })}
+              <h5
+                style={{
+                  fontFamily: "'Sora',sans-serif",
+                  fontSize: isMobile ? '.76rem' : '.8rem',
+                  fontWeight: 700,
+                  color: 'rgba(255,255,255,.85)',
+                  letterSpacing: '.5px',
+                  textTransform: 'uppercase',
+                  marginBottom: 16,
+                }}
+              >
+                {col}
+              </h5>
+              <ul
+                style={{
+                  listStyle: 'none',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
+                }}
+              >
+                {links.map((l, idx) => (
+                  <FooterLink key={idx} item={l} />
+                ))}
               </ul>
             </div>
           ))}
         </div>
-        <div style={{ borderTop: '1px solid rgba(255,255,255,.08)', paddingTop: 24, display: 'flex', alignItems: 'center', justifyContent: isMobile ? 'center' : 'space-between', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 20 : 0 }}>
-          <p style={{ fontSize: isMobile ? '.76rem' : '.8rem', color: 'rgba(255,255,255,.3)' }}>© 2025 GrowEdgeX. All rights reserved.</p>
+
+        <div
+          style={{
+            borderTop: '1px solid rgba(255,255,255,.08)',
+            paddingTop: 24,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: isMobile ? 'center' : 'space-between',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? 20 : 0,
+          }}
+        >
+          <p
+            style={{
+              fontSize: isMobile ? '.76rem' : '.8rem',
+              color: 'rgba(255,255,255,.3)',
+            }}
+          >
+            © 2025 GrowEdgeX. All rights reserved.
+          </p>
           <div style={{ display: 'flex', gap: 20 }}>
-            {['Privacy Policy', 'Terms of Service'].map(t => {
-              const [hov, setHov] = useState(false)
-              return (
-                <span key={t} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-                  style={{ fontSize: isMobile ? '.74rem' : '.78rem', color: hov ? C.blue2 : 'rgba(255,255,255,.3)', cursor: 'pointer', transition: 'color .2s' }}>{t}</span>
-              )
-            })}
+            {['Privacy Policy', 'Terms of Service'].map((t, idx) => (
+              <FooterTextLink key={idx} label={t} />
+            ))}
           </div>
         </div>
       </div>
