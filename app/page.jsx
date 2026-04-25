@@ -122,7 +122,6 @@ function GlobalStyles() {
   return null
 }
 
-/* ── NAVBAR ── */
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -196,7 +195,43 @@ function Navbar() {
         </a>
         <Btn onClick={() => scrollTo('cta')}>Free Consultation →</Btn>
       </div>
+{/* Blur overlay when mobile menu is open */}
+{mobileOpen && (
+  <div
+    onClick={() => setMobileOpen(false)}
+    style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0,0,0,0.2)',
+      backdropFilter: 'blur(4px)',
+      zIndex: 998,
+      transition: 'all 0.3s ease',
+    }}
+  />
+)}
 
+{/* Mobile Menu */}
+{mobileOpen && (
+  <div
+    style={{
+      position: 'fixed',
+      top: 70,
+      left: 0,
+      right: 0,
+      background: 'rgba(245,247,255,0.98)',
+      backdropFilter: 'blur(20px)',
+      padding: '20px',
+      boxShadow: '0 8px 24px rgba(68,81,244,.1)',
+      animation: 'fadeUp .3s ease both',
+      zIndex: 999,
+    }}
+  >
+    {/* existing menu content */}
+  </div>
+)}
       {/* Mobile Hamburger */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
